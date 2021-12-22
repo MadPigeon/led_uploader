@@ -1,7 +1,8 @@
 import * as CONFIG from "./app_config.json";
 import * as TeleBot from "telebot";
+import fs from "fs";
 
-// TODO: store list of message ids that have been processed in the last 24 hours
+// TODO: save getUpdate from returning duplicates
 
 const HELLO_MESSAGE = 'Для использования бота отправьте в этот чат фото или видео размером не более 300 Мб\nМатериалы будут рассмотрены модератором.';
 
@@ -28,22 +29,31 @@ export class BotHandler {
     });
     this._bot.on(['text'], msg => {
       msg.reply.text('Бот не принимает текст.\n' + HELLO_MESSAGE);
-      console.log("text\n" + msg);
+      // console.log("text");
+      console.log(msg);
     });
     this._bot.on(['photo'], msg => {
-      console.log("photo\n" + msg);
+      // console.log("photo");
+      console.log(msg);
+      const biggest_photo = msg.photo.sort((photo1, photo2) => photo2.width - photo1.width)[0];
+      this._bot.getFile(biggest_photo.file_id).then(x=>{
+        console.log("Get file result", x);
+        this._bot.sendMessage(msg.from.id, `Default file Link: ${ x.fileLink }`);
+      })
       msg.reply.text('Спасибо за отправку фотографии, она будет отправлена на рассмотрение модератору.',
         { replyToMessage: msg.message_id }
       );
     });
     this._bot.on(['video'], msg => {
-      console.log("video\n" + msg);
+      // console.log("video");
+      console.log(msg);
       msg.reply.text('Спасибо за отправку видео, оно будет отправлено на рассмотрение модератору.',
         { replyToMessage: msg.message_id }
       );
     });
     this._bot.on(['document'], msg => {
-      console.log("document\n" + msg);
+      console.log("document");
+      console.log(msg);
       let message: string;
       const attachmentType = msg.document.mime_type.split('/')[0];
       if (['image', 'video'].includes(attachmentType)) {
@@ -73,9 +83,9 @@ console.log("the bot is started");
 let i = 1;
 function myLoop() {
   setTimeout(function () {
-    console.log('listening' + ".".repeat(i));
-    i = ++i % 4;
-    if (i < 10) {
+    console.log('listening' + ".".repeat(i%4));
+    i = ++i % 16;
+    if (i < 17) {
       myLoop();
     }
   }, 5000)
