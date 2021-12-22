@@ -1,6 +1,7 @@
 {
     "BOT_TOKEN": "***REMOVED***",
-    "interval": 10000,
-    "retryTimeout": 10000,
-    "limit": 100
+    "interval": 2000,
+    "retryTimeout": 2000,
+    "limit": 100,
+    "pollingTimeout" : 500
 }
