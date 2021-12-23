@@ -1,6 +1,5 @@
 import * as CONFIG from "./app_config.json";
 import * as TeleBot from "telebot";
-import fs from "fs";
 
 // TODO: save getUpdate from returning duplicates
 
