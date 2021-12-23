@@ -3,8 +3,6 @@ import * as TeleBot from "telebot";
 
 // TODO: save getUpdate from returning duplicates
 
-const HELLO_MESSAGE = 'Для использования бота отправьте в этот чат фото или видео размером не более 300 Мб\nМатериалы будут рассмотрены модератором.';
-
 export class BotHandler {
   private _bot: TeleBot;
   constructor() {
@@ -23,11 +21,11 @@ export class BotHandler {
 
   private setBehaviour() {
     this._bot.on(['/start', '/hello'], (msg) => {
-      msg.reply.text(HELLO_MESSAGE);
+      msg.reply.text(CONFIG.helloMessage);
       console.log(msg);
     });
     this._bot.on(['text'], msg => {
-      msg.reply.text('Бот не принимает текст.\n' + HELLO_MESSAGE);
+      msg.reply.text(CONFIG.textExcuise + CONFIG.helloMessage);
       // console.log("text");
       console.log(msg);
     });
@@ -60,7 +58,7 @@ export class BotHandler {
         message += "Документ относится к типу: " + attachmentType;
       } else {
         message = "Ваше сообщение\n" + msg.caption + "\nСодержит неприемлимый для экрана тип\n" + attachmentType;
-        message += HELLO_MESSAGE;
+        message += CONFIG.helloMessage;
       }
       msg.reply.text(message, { replyToMessage: msg.message_id });
     });
