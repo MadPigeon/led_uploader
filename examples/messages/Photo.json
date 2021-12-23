@@ -1,0 +1,54 @@
+{
+    "message_id": 75,
+    "from": {
+      "id": 436762056,
+      "is_bot": false,
+      "first_name": "Vsevolod",
+      "username": "MadPigeon",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 436762056,
+      "first_name": "Vsevolod",
+      "username": "MadPigeon",
+      "type": "private"
+    },
+    "date": 1640258592,
+    "photo": [
+      {
+        "file_id": "AgACAgIAAxkBAANLYcRcIMpbCeT1HCL497UAAUatikM9AAKcuTEbM2MgSq1mSlq1OoDuAQADAgADcwADIwQ", 
+        "file_unique_id": "AQADnLkxGzNjIEp4",
+        "file_size": 718,
+        "width": 90,
+        "height": 67
+      },
+      {
+        "file_id": "AgACAgIAAxkBAANLYcRcIMpbCeT1HCL497UAAUatikM9AAKcuTEbM2MgSq1mSlq1OoDuAQADAgADeAADIwQ", 
+        "file_unique_id": "AQADnLkxGzNjIEp9",
+        "file_size": 4199,
+        "width": 400,
+        "height": 300
+      },
+      {
+        "file_id": "AgACAgIAAxkBAANLYcRcIMpbCeT1HCL497UAAUatikM9AAKcuTEbM2MgSq1mSlq1OoDuAQADAgADbQADIwQ", 
+        "file_unique_id": "AQADnLkxGzNjIEpy",
+        "file_size": 4303,
+        "width": 320,
+        "height": 240
+      }
+    ],
+    "reply": {
+      "text": [Function],
+      "photo": [Function],
+      "video": [Function],
+      "videoNote": [Function],
+      "file": [Function],
+      "sticker": [Function],
+      "audio": [Function],
+      "voice": [Function],
+      "game": [Function],
+      "action": [Function],
+      "location": [Function],
+      "place": ["Function": bound place]
+    }
+  }

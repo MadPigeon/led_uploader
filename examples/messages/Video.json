@@ -1,0 +1,48 @@
+{
+  "message_id": 80,
+  "from": {
+    "id": 436762056,
+    "is_bot": false,
+    "first_name": "Vsevolod",
+    "username": "MadPigeon",
+    "language_code": "en"
+  },
+  "chat": {
+    "id": 436762056,
+    "first_name": "Vsevolod",
+    "username": "MadPigeon",
+    "type": "private"
+  },
+  "date": 1640260997,
+  "video": {
+    "duration": 49,
+    "width": 640,
+    "height": 480,
+    "file_name": "puppy-jumping-mobile.mp4",
+    "mime_type": "video/mp4",
+    "thumb": {
+      "file_id": "AAMCAgADGQEAA1BhxGWF_9HydkCppNgfC8FYez0eWwAC7RIAAi_7KUrY7lih_GNaSgEAB20AAyME",
+      "file_unique_id": "AQAD7RIAAi_7KUpy",
+      "file_size": 12281,
+      "width": 320,
+      "height": 240
+    },
+    "file_id": "BAACAgIAAxkBAANQYcRlhf_R8nZAqaTYHwvBWHs9HlsAAu0SAAIv-ylK2O5YofxjWkojBA",
+    "file_unique_id": "AgAD7RIAAi_7KUo",
+    "file_size": 11948190
+  },
+  "reply": {
+    "text": [Function],
+    "photo": [Function],
+    "video": [Function],
+    "videoNote": [Function],
+    "file": [Function],
+    "sticker": [Function],
+    "audio": [Function],
+    "voice": [Function],
+    "game": [Function],
+    "action": [Function],
+    "location": [Function],
+    "place": ["Function": bound place]
+  }
+}
