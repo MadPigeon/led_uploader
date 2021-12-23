@@ -46,17 +46,17 @@
     "file_size": 17051
   },
   "reply": {
-    "text": [Function],
-    "photo": [Function],
-    "video": [Function],
-    "videoNote": [Function],
-    "file": [Function],
-    "sticker": [Function],
-    "audio": [Function],
-    "voice": [Function],
-    "game": [Function],
-    "action": [Function],
-    "location": [Function],
-    "place": ["Function": bound place]
+    "text": "[Function]",
+    "photo": "[Function]",
+    "video": "[Function]",
+    "videoNote": "[Function]",
+    "file": "[Function]",
+    "sticker": "[Function]",
+    "audio": "[Function]",
+    "voice": "[Function]",
+    "game": "[Function]",
+    "action": "[Function]",
+    "location": "[Function]",
+    "place": "['Function': bound place]"
   }
 }

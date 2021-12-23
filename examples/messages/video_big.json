@@ -1,0 +1,39 @@
+{
+    "message_id": 82,
+    "from": {
+      "id": 436762056,
+      "is_bot": false,
+      "first_name": "Vsevolod",
+      "username": "MadPigeon",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 436762056,
+      "first_name": "Vsevolod",
+      "username": "MadPigeon",
+      "type": "private"
+    },
+    "date": 1640262144,
+    "document": {
+      "file_name": "02.avi",
+      "mime_type": "video/x-msvideo",
+      "file_id": "BQACAgIAAxkBAANSYcRqAAEcrwoCt6euq3jJIMSZqicZAAInEwACL_spSv7GaphOlCCOIwQ",
+      "file_unique_id": "AgADJxMAAi_7KUo",
+      "file_size": 381298688
+    },
+    "caption": "adventure time",
+    "reply": {
+      "text": "[Function]",
+      "photo": "[Function]",
+      "video": "[Function]",
+      "videoNote": "[Function]",
+      "file": "[Function]",
+      "sticker": "[Function]",
+      "audio": "[Function]",
+      "voice": "[Function]",
+      "game": "[Function]",
+      "action": "[Function]",
+      "location": "[Function]",
+      "place": "['Function': bound place]"
+    }
+  }

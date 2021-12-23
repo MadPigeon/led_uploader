@@ -31,18 +31,19 @@
     "file_unique_id": "AgAD7RIAAi_7KUo",
     "file_size": 11948190
   },
+  "caption": "A jumping puppy",
   "reply": {
-    "text": [Function],
-    "photo": [Function],
-    "video": [Function],
-    "videoNote": [Function],
-    "file": [Function],
-    "sticker": [Function],
-    "audio": [Function],
-    "voice": [Function],
-    "game": [Function],
-    "action": [Function],
-    "location": [Function],
-    "place": ["Function": bound place]
+    "text": "[Function]",
+    "photo": "[Function]",
+    "video": "[Function]",
+    "videoNote": "[Function]",
+    "file": "[Function]",
+    "sticker": "[Function]",
+    "audio": "[Function]",
+    "voice": "[Function]",
+    "game": "[Function]",
+    "action": "[Function]",
+    "location": "[Function]",
+    "place": "['Function': bound place]"
   }
 }
