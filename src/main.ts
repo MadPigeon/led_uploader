@@ -1,4 +1,4 @@
-import { getConfig } from "./classes/ConfigReader";
+import { getConfig, getAgentConfig } from "./classes/ConfigReader";
 import * as TeleBot from "telebot";
 import * as ReplyGenerator from "./classes/ReplyGenerator";
 import * as FileExtracter from "./classes/FileExtracter";
@@ -24,14 +24,23 @@ export class BotHandler {
 
   private setBehaviour() {
     this._bot.on(['/start', '/hello'], (msg) => {
+      if (this.isMessageInAgentChat(msg)) {
+        return;
+      }
       console.log(msg);
       msg.reply.text(ReplyGenerator.replyToHello())
     });
     this._bot.on(['text'], msg => {
+      if (this.isMessageInAgentChat(msg)) {
+        return;
+      }
       console.log(msg);
       msg.reply.text(ReplyGenerator.replyToText(msg.text));
     });
     this._bot.on(['photo'], msg => {
+      if (this.isMessageInAgentChat(msg)) {
+        return;
+      }
       console.log(msg);
 
       const extracted_photo = FileExtracter.extractBestQualityPhoto(msg) as any;
@@ -45,6 +54,9 @@ export class BotHandler {
       msg.reply.text(message, { replyToMessage: msg.message_id });
     });
     this._bot.on(['video'], msg => {
+      if (this.isMessageInAgentChat(msg)) {
+        return;
+      }
       console.log(msg);
 
       const extracted_video = FileExtracter.extractVideo(msg) as any;
@@ -58,6 +70,9 @@ export class BotHandler {
       msg.reply.text(message, { replyToMessage: msg.message_id });
     });
     this._bot.on(['document'], msg => {
+      if (this.isMessageInAgentChat(msg)) {
+        return;
+      }
       console.log("document");
       console.log(msg);
       let message: string;
@@ -86,8 +101,8 @@ export class BotHandler {
   }
 
   // TODO: unite with tryExtractingVideo somehow
-  private tryExtractingPhoto(extracted_photo: any) : {success: boolean, reason : ReplyGenerator.RejectedReasons} {
-    const result = {success: false, reason : undefined};
+  private tryExtractingPhoto(extracted_photo: any): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
+    const result = { success: false, reason: undefined };
     if (FileAnalyzer.fitsSizeConstraints(extracted_photo.file_size)) {
       this._bot.getFile(extracted_photo.file_id).then(getFileResponse => {
         console.log("Get file result", getFileResponse);
@@ -103,8 +118,8 @@ export class BotHandler {
     return result;
   }
 
-  private tryExtractingVideo(extracted_video: any) : {success: boolean, reason : ReplyGenerator.RejectedReasons} {
-    const result = {success: false, reason : undefined};
+  private tryExtractingVideo(extracted_video: any): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
+    const result = { success: false, reason: undefined };
     if (FileAnalyzer.fitsSizeConstraints(extracted_video.file_size)) {
       this._bot.getFile(extracted_video.file_id).then(getFileResponse => {
         console.log("Get file result", getFileResponse);
@@ -117,6 +132,10 @@ export class BotHandler {
       result.reason = ReplyGenerator.RejectedReasons.FILE_TOO_BIG;
     }
     return result;
+  }
+
+  private isMessageInAgentChat(msg: { chat: { id: number } }): boolean {
+    return getAgentConfig().chat_id == msg.chat.id;
   }
 
   getUpdates() {
