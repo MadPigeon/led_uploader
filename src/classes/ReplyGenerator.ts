@@ -1,25 +1,52 @@
-import * as CONFIG from "../app_config.json"
+import { getConfig } from "./ConfigReader";
 
-export class ReplyGenerator {
-    replyToText(message : string) : string {
-        if (['/hello', '/start'].includes(message))
-            return this.replyToHello();
-        return CONFIG.textExcuise + "\n" +  CONFIG.helloMessage;
-    }
+export enum RejectedReasons {
+    FILE_TOO_BIG = "Размер файла превышает допустимый."
+}
 
-    replyToHello() {
-        return CONFIG.helloMessage;
-    }
+enum MediaType {
+    Photo = "Фотография",
+    Video = "Видео"
+}
 
-    private acceptedMediaType(media_type : string) : string {
-        return `${media_type} у нас. Спасибо за отправку.\nМодератор проанализирует файл и он отобразится на экране.`;
+export function replyToText(message: string): string {
+    if (['/hello', '/start'].includes(message))
+        return replyToHello();
+    return getConfig().textExcuise + "\n" + getConfig().helloMessage;
+}
+
+export function replyToHello() {
+    return getConfig().helloMessage;
+}
+
+export function photoAccepted() {
+    return acceptedMediaType(MediaType.Photo);
+}
+
+export function videoAccepted() {
+    return acceptedMediaType(MediaType.Video);
+}
+
+export function photoRejected(reason: RejectedReasons) {
+    return rejectedMediaType(MediaType.Photo, reason);
+}
+
+export function videoRejected(reason: RejectedReasons) {
+    return rejectedMediaType(MediaType.Video, reason);
+}
+
+function ending(type: MediaType) {
+    switch (type) {
+        case MediaType.Photo: { return "а" }
+        case MediaType.Video: { return "о" }
+        default: { return "" }
     }
-    
-    photoAccepted() {
-        return this.acceptedMediaType("Фотография");
-    }
-    
-    videoAccepted() {
-        return this.acceptedMediaType("Видео");
-    }
+}
+
+function acceptedMediaType(media_type: MediaType): string {
+    return `${media_type} у нас. Спасибо за отправку.\nМодератор проанализирует файл и он отобразится на экране.`;
+}
+
+function rejectedMediaType(media_type: MediaType, reason: RejectedReasons): string {
+    return `${media_type} не может быть обработан${ending(media_type)}.\n${reason}`;
 }

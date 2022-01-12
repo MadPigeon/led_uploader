@@ -1,18 +1,21 @@
-import * as CONFIG from "./app_config.json";
+import { getConfig } from "./classes/ConfigReader";
 import * as TeleBot from "telebot";
+import * as ReplyGenerator from "./classes/ReplyGenerator";
+import * as FileExtracter from "./classes/FileExtracter";
+import * as FileAnalyzer from "./classes/FileAnalyzer";
+import * as FileDownloader from "./classes/FileDownloader"
 
-// TODO: save getUpdate from returning duplicates
 
 export class BotHandler {
   private _bot: TeleBot;
   constructor() {
     this._bot = new TeleBot({
-      token: CONFIG.BOT_TOKEN, // Required. Telegram Bot API token.
+      token: getConfig().BOT_TOKEN, // Required. Telegram Bot API token.
       polling: { // Optional. Use polling.
-        interval: CONFIG.interval, // Optional. How often check updates (in ms).
-        timeout: CONFIG.pollingTimeout, // Optional. Update polling timeout (0 - short polling).
-        limit: CONFIG.limit, // Optional. Limits the number of updates to be retrieved.
-        retryTimeout: CONFIG.retryTimeout, // Optional. Reconnecting timeout (in ms).
+        interval: getConfig().interval, // Optional. How often check updates (in ms).
+        timeout: getConfig().pollingTimeout, // Optional. Update polling timeout (0 - short polling).
+        limit: getConfig().limit, // Optional. Limits the number of updates to be retrieved.
+        retryTimeout: getConfig().retryTimeout, // Optional. Reconnecting timeout (in ms).
       }
     });
 
@@ -21,47 +24,99 @@ export class BotHandler {
 
   private setBehaviour() {
     this._bot.on(['/start', '/hello'], (msg) => {
-      msg.reply.text(CONFIG.helloMessage);
       console.log(msg);
+      msg.reply.text(ReplyGenerator.replyToHello())
     });
     this._bot.on(['text'], msg => {
-      msg.reply.text(CONFIG.textExcuise + CONFIG.helloMessage);
-      // console.log("text");
       console.log(msg);
+      msg.reply.text(ReplyGenerator.replyToText(msg.text));
     });
     this._bot.on(['photo'], msg => {
-      // console.log("photo");
       console.log(msg);
-      const biggest_photo = msg.photo.sort((photo1, photo2) => photo2.width - photo1.width)[0];
-      this._bot.getFile(biggest_photo.file_id).then(x=>{
-        console.log("Get file result", x);
-        this._bot.sendMessage(msg.from.id, `Default file Link: ${ x.fileLink }`);
-      })
-      msg.reply.text('Спасибо за отправку фотографии, она будет отправлена на рассмотрение модератору.',
-        { replyToMessage: msg.message_id }
-      );
+
+      const extracted_photo = FileExtracter.extractBestQualityPhoto(msg) as any;
+      let message: string;
+      const response = this.tryExtractingPhoto(extracted_photo)
+      if (response.success) {
+        message = ReplyGenerator.photoAccepted();
+      } else {
+        message = ReplyGenerator.photoRejected(response.reason);
+      }
+      msg.reply.text(message, { replyToMessage: msg.message_id });
     });
     this._bot.on(['video'], msg => {
-      // console.log("video");
       console.log(msg);
-      msg.reply.text('Спасибо за отправку видео, оно будет отправлено на рассмотрение модератору.',
-        { replyToMessage: msg.message_id }
-      );
+
+      const extracted_video = FileExtracter.extractVideo(msg) as any;
+      let message: string;
+      const response = this.tryExtractingVideo(extracted_video);
+      if (response.success) {
+        message = ReplyGenerator.videoAccepted();
+      } else {
+        message = ReplyGenerator.videoRejected(response.reason);
+      }
+      msg.reply.text(message, { replyToMessage: msg.message_id });
     });
     this._bot.on(['document'], msg => {
       console.log("document");
       console.log(msg);
       let message: string;
-      const attachmentType = msg.document.mime_type.split('/')[0];
-      if (['image', 'video'].includes(attachmentType)) {
-        message = "Ваше сообщение содержит документ" + msg.caption + "\n";
-        message += "Документ относится к типу: " + attachmentType;
+      const extracted_ducument = FileExtracter.extractDocument(msg);
+      const attachmentType = extracted_ducument.mime_type.split('/')[0];
+      if (attachmentType === "image") {
+        const response = this.tryExtractingPhoto(msg.document);
+        if (response.success) {
+          message = ReplyGenerator.photoAccepted();
+        } else {
+          message = ReplyGenerator.photoRejected(response.reason);
+        }
+      } else if (attachmentType === "video") {
+        const response = this.tryExtractingVideo(msg.document);
+        if (response.success) {
+          message = ReplyGenerator.videoAccepted();
+        } else {
+          message = ReplyGenerator.videoRejected(response.reason);
+        }
       } else {
         message = "Ваше сообщение\n" + msg.caption + "\nСодержит неприемлимый для экрана тип\n" + attachmentType;
-        message += CONFIG.helloMessage;
+        message += getConfig().helloMessage;
       }
       msg.reply.text(message, { replyToMessage: msg.message_id });
     });
+  }
+
+  // TODO: unite with tryExtractingVideo somehow
+  private tryExtractingPhoto(extracted_photo: any) : {success: boolean, reason : ReplyGenerator.RejectedReasons} {
+    const result = {success: false, reason : undefined};
+    if (FileAnalyzer.fitsSizeConstraints(extracted_photo.file_size)) {
+      this._bot.getFile(extracted_photo.file_id).then(getFileResponse => {
+        console.log("Get file result", getFileResponse);
+        const fileName = getFileResponse.file_path.split('/')[1];
+        FileDownloader.download(getFileResponse.fileLink, getConfig().folder, fileName);
+        console.log(getFileResponse.fileLink);
+      });
+      result.success = true;
+    } else {
+      result.success = false;
+      result.reason = ReplyGenerator.RejectedReasons.FILE_TOO_BIG;
+    }
+    return result;
+  }
+
+  private tryExtractingVideo(extracted_video: any) : {success: boolean, reason : ReplyGenerator.RejectedReasons} {
+    const result = {success: false, reason : undefined};
+    if (FileAnalyzer.fitsSizeConstraints(extracted_video.file_size)) {
+      this._bot.getFile(extracted_video.file_id).then(getFileResponse => {
+        console.log("Get file result", getFileResponse);
+        FileDownloader.download(getFileResponse.fileLink, getConfig().folder, extracted_video.file_name);
+        return getFileResponse.fileLink;
+      });
+      result.success = true;
+    } else {
+      result.success = false;
+      result.reason = ReplyGenerator.RejectedReasons.FILE_TOO_BIG;
+    }
+    return result;
   }
 
   getUpdates() {
@@ -80,7 +135,7 @@ console.log("the bot is started");
 let i = 1;
 function myLoop() {
   setTimeout(function () {
-    console.log('listening' + ".".repeat(i%4));
+    console.log('listening' + ".".repeat(i % 4));
     i = ++i % 16;
     if (i < 17) {
       myLoop();

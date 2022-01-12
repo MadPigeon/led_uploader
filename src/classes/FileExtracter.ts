@@ -1,11 +1,11 @@
 interface MessageWithPhoto {
-    photo: { file_id: string; width: number; }[];
+    photo: { file_id: string, width: number; }[];
 }
 interface MessageWithVideo {
-    video: { file_id: string; };
+    video;
 }
 interface MessageWithDocument {
-    document: { file_id: string; }
+    document;
 }
 interface Photo {
     width: number;
@@ -13,15 +13,15 @@ interface Photo {
 
 export function extractBestQualityPhoto(message: MessageWithPhoto) {
     const sorted_photos = message.photo.sort(compareByWidthDescending());
-    return sorted_photos[0].file_id;
+    return sorted_photos[0];
 }
 
 export function extractVideo(message: MessageWithVideo) {
-    return message.video.file_id;
+    return message.video;
 }
 
 export function extractDocument(message: MessageWithDocument) {
-    return message.document.file_id;
+    return message.document;
 }
 
 function compareByWidthDescending(): (photo1: Photo, photo2: Photo) => number {

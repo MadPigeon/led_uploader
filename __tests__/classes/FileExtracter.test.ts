@@ -23,7 +23,7 @@ test('extractPhoto extracts file_id of the widest photo', () => {
             }
         ]
     };
-    expect(extractBestQualityPhoto(input)).toEqual(good_id);
+    expect(extractBestQualityPhoto(input).file_id).toEqual(good_id);
 });
 
 test('extractDocument exists', () => {
@@ -33,7 +33,7 @@ test('extractDocument exists', () => {
 test('extractDocument extracts file_id from the document', () => {
     const good_id = "id1337";
     const input = { "document": { "file_id": good_id } };
-    expect(extractDocument(input)).toEqual(good_id);
+    expect(extractDocument(input).file_id).toEqual(good_id);
 });
 
 test('extractVideo exists', () => {
@@ -48,5 +48,5 @@ test('extractVideo extracts file_id from the video', () => {
             "file_id": good_id
         }
     };
-    expect(extractVideo(input)).toEqual(good_id);
+    expect(extractVideo(input).file_id).toEqual(good_id);
 });
