@@ -43,7 +43,7 @@ export class BotHandler {
       }
       console.log(msg);
 
-      const extracted_photo = FileExtracter.extractBestQualityPhoto(msg) as any;
+      const extracted_photo: { file_size: number, file_id: string } = FileExtracter.extractBestQualityPhoto(msg);
       let message: string;
       const response = this.tryExtractingPhoto(extracted_photo)
       if (response.success) {
@@ -59,7 +59,7 @@ export class BotHandler {
       }
       console.log(msg);
 
-      const extracted_video = FileExtracter.extractVideo(msg) as any;
+      const extracted_video: { file_size: number, file_id: string, file_name: string } = FileExtracter.extractVideo(msg);
       let message: string;
       const response = this.tryExtractingVideo(extracted_video);
       if (response.success) {
@@ -101,7 +101,7 @@ export class BotHandler {
   }
 
   // TODO: unite with tryExtractingVideo somehow
-  private tryExtractingPhoto(extracted_photo: any): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
+  private tryExtractingPhoto(extracted_photo: { file_size: number, file_id: string }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
     const result = { success: false, reason: undefined };
     if (FileAnalyzer.fitsSizeConstraints(extracted_photo.file_size)) {
       this._bot.getFile(extracted_photo.file_id).then(getFileResponse => {
@@ -118,7 +118,7 @@ export class BotHandler {
     return result;
   }
 
-  private tryExtractingVideo(extracted_video: any): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
+  private tryExtractingVideo(extracted_video: { file_size: number, file_id: string, file_name: string }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
     const result = { success: false, reason: undefined };
     if (FileAnalyzer.fitsSizeConstraints(extracted_video.file_size)) {
       this._bot.getFile(extracted_video.file_id).then(getFileResponse => {

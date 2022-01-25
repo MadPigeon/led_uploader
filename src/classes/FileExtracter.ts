@@ -1,5 +1,5 @@
 interface MessageWithPhoto {
-    photo: { file_id: string, width: number; }[];
+    photo: Photo[];
 }
 interface MessageWithVideo {
     video;
@@ -8,7 +8,9 @@ interface MessageWithDocument {
     document;
 }
 interface Photo {
-    width: number;
+    file_id: string,
+    width: number,
+    file_size: number
 }
 
 export function extractBestQualityPhoto(message: MessageWithPhoto) {

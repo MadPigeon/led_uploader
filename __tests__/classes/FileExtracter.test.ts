@@ -6,20 +6,24 @@ test('extractPhoto exists', () => {
 
 test('extractPhoto extracts file_id of the widest photo', () => {
     const good_id = "good_id";
+    const arbitraryFileSize = 8;
     const input = {
         message_id: 75,
         photo: [
             {
                 "file_id": "small_id",
                 "width": 90,
+                file_size: arbitraryFileSize
             },
             {
                 "file_id": good_id,
                 "width": 400,
+                file_size: arbitraryFileSize
             },
             {
                 "file_id": "bad_id",
                 "width": 320,
+                file_size: arbitraryFileSize
             }
         ]
     };
