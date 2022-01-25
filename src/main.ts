@@ -31,7 +31,7 @@ export class BotHandler {
       msg.reply.text(ReplyGenerator.replyToHello())
     });
     this._bot.on(['text'], msg => {
-      if (this.isMessageInAgentChat(msg)) {
+      if (this.isMessageInAgentChat(msg) || ['/start', '/hello'].includes(msg.text)) {
         return;
       }
       console.log(msg);
@@ -45,7 +45,7 @@ export class BotHandler {
 
       const extracted_photo: { file_size: number, file_id: string } = FileExtracter.extractBestQualityPhoto(msg);
       let message: string;
-      const response = this.tryExtractingPhoto(extracted_photo)
+      const response = this.tryDownloadingPhoto(extracted_photo)
       if (response.success) {
         message = ReplyGenerator.photoAccepted();
       } else {
@@ -59,9 +59,9 @@ export class BotHandler {
       }
       console.log(msg);
 
-      const extracted_video: { file_size: number, file_id: string, file_name: string } = FileExtracter.extractVideo(msg);
+      const extracted_video: { file_size: number, file_id: string, file_name: string, duration: number } = FileExtracter.extractVideo(msg);
       let message: string;
-      const response = this.tryExtractingVideo(extracted_video);
+      const response = this.tryDownloadingVideo(extracted_video);
       if (response.success) {
         message = ReplyGenerator.videoAccepted();
       } else {
@@ -73,20 +73,19 @@ export class BotHandler {
       if (this.isMessageInAgentChat(msg)) {
         return;
       }
-      console.log("document");
       console.log(msg);
       let message: string;
       const extracted_ducument = FileExtracter.extractDocument(msg);
       const attachmentType = extracted_ducument.mime_type.split('/')[0];
       if (attachmentType === "image") {
-        const response = this.tryExtractingPhoto(msg.document);
+        const response = this.tryDownloadingPhoto(msg.document);
         if (response.success) {
           message = ReplyGenerator.photoAccepted();
         } else {
           message = ReplyGenerator.photoRejected(response.reason);
         }
       } else if (attachmentType === "video") {
-        const response = this.tryExtractingVideo(msg.document);
+        const response = this.tryDownloadingVideo(msg.document);
         if (response.success) {
           message = ReplyGenerator.videoAccepted();
         } else {
@@ -101,9 +100,13 @@ export class BotHandler {
   }
 
   // TODO: unite with tryExtractingVideo somehow
-  private tryExtractingPhoto(extracted_photo: { file_size: number, file_id: string }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
+  private tryDownloadingPhoto(extracted_photo: { file_size: number, file_id: string }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
     const result = { success: false, reason: undefined };
-    if (FileAnalyzer.fitsSizeConstraints(extracted_photo.file_size)) {
+    if (!FileAnalyzer.fitsSizeConstraints(extracted_photo.file_size)) {
+      result.success = false;
+      result.reason = ReplyGenerator.RejectedReasons.FILE_TOO_BIG;
+    } else {
+      if (FileAnalyzer.requiresFileAgent(extracted_photo.file_size))
       this._bot.getFile(extracted_photo.file_id).then(getFileResponse => {
         console.log("Get file result", getFileResponse);
         const fileName = getFileResponse.file_path.split('/')[1];
@@ -111,25 +114,26 @@ export class BotHandler {
         console.log(getFileResponse.fileLink);
       });
       result.success = true;
-    } else {
-      result.success = false;
-      result.reason = ReplyGenerator.RejectedReasons.FILE_TOO_BIG;
     }
     return result;
   }
 
-  private tryExtractingVideo(extracted_video: { file_size: number, file_id: string, file_name: string }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
+  private tryDownloadingVideo(extracted_video: { file_size: number, file_id: string, file_name: string, duration: number }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
     const result = { success: false, reason: undefined };
-    if (FileAnalyzer.fitsSizeConstraints(extracted_video.file_size)) {
+    const fitsFileConstraints = FileAnalyzer.fitsSizeConstraints(extracted_video.file_size);
+    if (!fitsFileConstraints || !FileAnalyzer.fitsVideoLength(extracted_video.duration)) {
+      result.success = false;
+      if (!fitsFileConstraints)
+        result.reason = ReplyGenerator.RejectedReasons.FILE_TOO_BIG;
+      else
+        result.reason = ReplyGenerator.RejectedReasons.VIDEO_TOO_LONG;
+    } else {
       this._bot.getFile(extracted_video.file_id).then(getFileResponse => {
         console.log("Get file result", getFileResponse);
         FileDownloader.download(getFileResponse.fileLink, getConfig().folder, extracted_video.file_name);
         return getFileResponse.fileLink;
       });
       result.success = true;
-    } else {
-      result.success = false;
-      result.reason = ReplyGenerator.RejectedReasons.FILE_TOO_BIG;
     }
     return result;
   }

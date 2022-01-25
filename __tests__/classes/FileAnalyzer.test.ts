@@ -1,4 +1,4 @@
-import { fitsSizeConstraints, requiresFileAgent, isDocumentAPhoto, isDocumentAVideo } from '../../src/classes/FileAnalyzer';
+import { fitsSizeConstraints, requiresFileAgent, isDocumentAPhoto, isDocumentAVideo, fitsVideoLength } from '../../src/classes/FileAnalyzer';
 
 const byteToMegabyteMultiplier = 1024 * 1024;
 
@@ -38,4 +38,19 @@ test('isDocumentAVideo accepts video', () => {
 test('isDocumentAVideo rejects photo', () => {
   const document = { "mime_type": "image/jpg" };
   expect(isDocumentAVideo(document)).toEqual(false);
+});
+
+test('fitsVideoLength allows short videos', () => {
+  const duration = 10;
+  expect(fitsVideoLength(duration)).toEqual(true);
+});
+
+test('fitsVideoLength rejects long videos', () => {
+  const duration = 95;
+  expect(fitsVideoLength(duration)).toEqual(false);
+});
+
+test('fitsVideoLength accepts videos with no duration', () => {
+  const duration: number = undefined;
+  expect(fitsVideoLength(duration)).toEqual(true);
 });

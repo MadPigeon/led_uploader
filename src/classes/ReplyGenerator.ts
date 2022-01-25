@@ -1,7 +1,8 @@
 import { getConfig } from "./ConfigReader";
 
 export enum RejectedReasons {
-    FILE_TOO_BIG = "Размер файла превышает допустимый."
+    FILE_TOO_BIG = "Размер файла превышает допустимый. В приветственном сообщении указан допустимый объём.",
+    VIDEO_TOO_LONG = "Видео слишком продолжительное, в приветственном сообщении указана допустимая длина."
 }
 
 enum MediaType {
