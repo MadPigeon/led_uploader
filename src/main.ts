@@ -4,9 +4,10 @@ import * as ReplyGenerator from "./classes/ReplyGenerator";
 import * as FileExtracter from "./classes/FileExtracter";
 import * as FileAnalyzer from "./classes/FileAnalyzer";
 import * as FileDownloader from "./classes/FileDownloader"
+import * as FileAgent from "./classes/FileAgent"
 
 
-export class BotHandler {
+class BotHandler {
   private _bot: TeleBot;
   constructor() {
     this._bot = new TeleBot({
@@ -45,7 +46,7 @@ export class BotHandler {
 
       const extracted_photo: { file_size: number, file_id: string } = FileExtracter.extractBestQualityPhoto(msg);
       let message: string;
-      const response = this.tryDownloadingPhoto(extracted_photo)
+      const response = this.tryDownloadingPhoto(msg, extracted_photo)
       if (response.success) {
         message = ReplyGenerator.photoAccepted();
       } else {
@@ -61,13 +62,13 @@ export class BotHandler {
 
       const extracted_video: { file_size: number, file_id: string, file_name: string, duration: number } = FileExtracter.extractVideo(msg);
       let message: string;
-      const response = this.tryDownloadingVideo(extracted_video);
+      const response = this.tryDownloadingVideo(msg, extracted_video);
       if (response.success) {
         message = ReplyGenerator.videoAccepted();
       } else {
         message = ReplyGenerator.videoRejected(response.reason);
       }
-      msg.reply.text(message, { replyToMessage: msg.message_id });
+      msg.reply.text(message, { replyToMessage: msg.message_id }).catch(error => console.log("error\n", error));;
     });
     this._bot.on(['document'], msg => {
       if (this.isMessageInAgentChat(msg)) {
@@ -78,14 +79,14 @@ export class BotHandler {
       const extracted_ducument = FileExtracter.extractDocument(msg);
       const attachmentType = extracted_ducument.mime_type.split('/')[0];
       if (attachmentType === "image") {
-        const response = this.tryDownloadingPhoto(msg.document);
+        const response = this.tryDownloadingPhoto(msg, msg.document);
         if (response.success) {
           message = ReplyGenerator.photoAccepted();
         } else {
           message = ReplyGenerator.photoRejected(response.reason);
         }
       } else if (attachmentType === "video") {
-        const response = this.tryDownloadingVideo(msg.document);
+        const response = this.tryDownloadingVideo(msg, msg.document);
         if (response.success) {
           message = ReplyGenerator.videoAccepted();
         } else {
@@ -99,14 +100,16 @@ export class BotHandler {
     });
   }
 
-  // TODO: unite with tryExtractingVideo somehow
-  private tryDownloadingPhoto(extracted_photo: { file_size: number, file_id: string }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
+  // TODO: unite with tryDownloadingVideo somehow
+  private tryDownloadingPhoto(msg, extracted_photo: { file_size: number, file_id: string }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
     const result = { success: false, reason: undefined };
     if (!FileAnalyzer.fitsSizeConstraints(extracted_photo.file_size)) {
       result.success = false;
       result.reason = ReplyGenerator.RejectedReasons.FILE_TOO_BIG;
     } else {
-      if (FileAnalyzer.requiresFileAgent(extracted_photo.file_size))
+      if (FileAnalyzer.requiresFileAgent(extracted_photo.file_size)) {
+        FileAgent.forwardMessageToAgent(this._bot, msg)
+      }
       this._bot.getFile(extracted_photo.file_id).then(getFileResponse => {
         console.log("Get file result", getFileResponse);
         const fileName = getFileResponse.file_path.split('/')[1];
@@ -118,7 +121,7 @@ export class BotHandler {
     return result;
   }
 
-  private tryDownloadingVideo(extracted_video: { file_size: number, file_id: string, file_name: string, duration: number }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
+  private tryDownloadingVideo(msg: { message_id: number; chat: { id: number } }, extracted_video: { file_size: number, file_id: string, file_name: string, duration: number }): { success: boolean, reason: ReplyGenerator.RejectedReasons } {
     const result = { success: false, reason: undefined };
     const fitsFileConstraints = FileAnalyzer.fitsSizeConstraints(extracted_video.file_size);
     if (!fitsFileConstraints || !FileAnalyzer.fitsVideoLength(extracted_video.duration)) {
@@ -128,11 +131,15 @@ export class BotHandler {
       else
         result.reason = ReplyGenerator.RejectedReasons.VIDEO_TOO_LONG;
     } else {
-      this._bot.getFile(extracted_video.file_id).then(getFileResponse => {
-        console.log("Get file result", getFileResponse);
-        FileDownloader.download(getFileResponse.fileLink, getConfig().folder, extracted_video.file_name);
-        return getFileResponse.fileLink;
-      });
+      if (FileAnalyzer.requiresFileAgent(extracted_video.file_size)) {
+        FileAgent.forwardMessageToAgent(this._bot, msg);
+      } else {
+        this._bot.getFile(extracted_video.file_id).then(getFileResponse => {
+          console.log("Get file result", getFileResponse);
+          FileDownloader.download(getFileResponse.fileLink, getConfig().folder, extracted_video.file_name);
+          return getFileResponse.fileLink;
+        });
+      }
       result.success = true;
     }
     return result;

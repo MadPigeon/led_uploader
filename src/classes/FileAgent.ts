@@ -1,7 +1,7 @@
 import { getAgentConfig } from "../../src/classes/ConfigReader";
 
 export interface Bot {
-  forwardMessage(chat_id: number, from_chat_id: number, message_id: number): void;
+  forwardMessage(chat_id: number, from_chat_id: number, message_id: number): Promise<void>;
 }
 
 interface Chat {
@@ -14,7 +14,6 @@ interface Message {
 }
 
 export function forwardMessageToAgent(bot: Bot, message: Message): void {
-  getAgentConfig();
-  bot.forwardMessage(0, message.chat.id, message.message_id);
-  return undefined;
+  const agent_chat_id = getAgentConfig().chat_id;
+  bot.forwardMessage(agent_chat_id, message.chat.id, message.message_id).catch((error) => console.log(error));
 }

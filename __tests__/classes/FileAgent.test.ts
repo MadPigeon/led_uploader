@@ -5,10 +5,18 @@ class BotTester implements FileAgent.Bot {
   public from_chat_id: number;
   public message_id: number;
 
-  forwardMessage(chat_id: number, from_chat_id: number, message_id: number) {
-    this.chat_id = chat_id;
-    this.from_chat_id = from_chat_id;
-    this.message_id = message_id;
+  forwardMessage(chat_id: number, from_chat_id: number, message_id: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const success = true;
+      this.chat_id = chat_id;
+      this.from_chat_id = from_chat_id;
+      this.message_id = message_id;
+      if (success) {
+        resolve();
+      } else {
+        reject();
+      }
+    });
   }
 }
 
