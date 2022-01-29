@@ -5,6 +5,7 @@ import * as FileExtracter from "./classes/FileExtracter";
 import * as FileAnalyzer from "./classes/FileAnalyzer";
 import * as FileDownloader from "./classes/FileDownloader"
 import * as FileAgent from "./classes/FileAgent"
+import { spawn } from "node:child_process";
 
 
 class BotHandler {
@@ -160,7 +161,10 @@ class BotHandler {
 
 const bot = new BotHandler();
 bot.start();
-console.log("the bot is started");
+const process = spawn('python', ["../python/src/main.py"]);
+process.stdout.on('data', function (data) {
+  console.log("python output: ", data.toString());
+});
 
 let i = 1;
 function myLoop() {
