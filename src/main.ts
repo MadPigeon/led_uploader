@@ -6,6 +6,7 @@ import * as FileAnalyzer from "./classes/FileAnalyzer";
 import * as FileDownloader from "./classes/FileDownloader"
 import * as FileAgent from "./classes/FileAgent"
 import { spawn } from "node:child_process";
+import * as path from 'path';
 
 
 class BotHandler {
@@ -161,7 +162,10 @@ class BotHandler {
 
 const bot = new BotHandler();
 bot.start();
-const process = spawn('python', ["../python/src/main.py"]);
+
+const relative_path_to_python = '../../python/src/main.py'; //exits build/src
+const joined_path = path.resolve(__dirname, relative_path_to_python);
+const process = spawn('python', [joined_path]);
 process.stdout.on('data', function (data) {
   console.log("python output: ", data.toString());
 });
