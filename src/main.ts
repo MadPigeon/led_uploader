@@ -164,7 +164,6 @@ bot.start();
 let i = 1;
 function myLoop() {
   setTimeout(function () {
-    console.log('listening' + ".".repeat(i % 4));
     i = ++i % 16;
     if (i < 17) {
       myLoop();
