@@ -32,13 +32,13 @@ def run():
 
 
 test = Agent()
-f = open('../../config/app_config.json', encoding='UTF8')
+config_file = open('../../config/agent_config.json', encoding='UTF8')
 
-data = json.load(f)
+agent_config = json.load(config_file)
 
-session = data["TG_SESSION"]
-api_id = data["TG_API_ID"]
-api_hash = data["TG_API_HASH"]
+session = agent_config["session"]
+api_id = agent_config["api_id"]
+api_hash = agent_config["api_hash"]
 
 proxy = None  # https://github.com/Anorov/PySocks
 
