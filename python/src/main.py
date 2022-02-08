@@ -1,7 +1,4 @@
 import json
-import os
-import sys
-import time
 
 from telethon import TelegramClient, events, utils
 from agent import Agent
@@ -20,6 +17,9 @@ def register(cb, the_chat_id):
     async def handler(event):
         sender = await event.get_sender()
         name = utils.get_display_name(sender)
+        message = event.message
+        print(message)
+        await message.download_media('./download/')
         cb(name, event.text)
 
 
