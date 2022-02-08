@@ -30,3 +30,4 @@ build/
 package-lock.json
 python/__pycache__/
 python/src/__pycache__/
+python/src/***REMOVED***.session

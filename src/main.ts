@@ -1,4 +1,4 @@
-import { getConfig, getAgentConfig } from "./classes/ConfigReader";
+import { getConfig } from "./classes/ConfigReader";
 import * as TeleBot from "telebot";
 import * as ReplyGenerator from "./classes/ReplyGenerator";
 import * as FileExtracter from "./classes/FileExtracter";
@@ -148,7 +148,7 @@ class BotHandler {
   }
 
   private isMessageInAgentChat(msg: { chat: { id: number } }): boolean {
-    return getAgentConfig().chat_id == msg.chat.id;
+    return getConfig().agent_chat_id == msg.chat.id;
   }
 
   getUpdates() {

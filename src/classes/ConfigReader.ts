@@ -1,16 +1,9 @@
 import * as path from "path";
 
-export interface AgentConfig {
-  api_id: number;
-  api_hash: string;
-  chat_id: number;
-}
 
 const config_path = path.join(process.cwd(), './config/app_config.json');
-const agent_config_path = path.join(process.cwd(), './config/agent_config.json');
 
 let configObject = undefined;
-let agentConfigObject: AgentConfig = undefined;
 
 export function getConfig() {
   if (configObject == undefined) {
@@ -18,14 +11,6 @@ export function getConfig() {
   }
 
   return configObject;
-}
-
-export function getAgentConfig(): AgentConfig {
-  if (agentConfigObject == undefined) {
-    agentConfigObject = readFileToJSON(agent_config_path);
-  }
-
-  return agentConfigObject;
 }
 
 function readFileToJSON(file_path: string) {
